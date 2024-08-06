@@ -63,7 +63,27 @@ const createSubCategoryController = async (req, res) => {
   }
 };
 
-const subCategoryStatusController = async (req, res) => {};
+const subCategoryStatusController = async (req, res) => {
+  const { name, status } = req.body;
+
+  const findName = await SubCategory.find({ name });
+  if (findName.length > 0) {
+    if (status === "rejected" || status === "waiting") {
+      await SubCategory.findOneAndUpdate(
+        { name },
+        { $set: { isActive: false, status } },
+        { new: true }
+      );
+    } else if (status === "approved") {
+      await SubCategory.findOneAndUpdate(
+        { name },
+        { $set: { isActive: true, status } },
+        { new: true }
+      );
+    }
+    return res.send({ message: "SubCategory status updated successfully" });
+  }
+};
 
 const getAllCategoriesController = async (req, res) => {
   const data = await Category.find({}).populate("subCategories");
